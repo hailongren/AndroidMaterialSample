@@ -59,7 +59,7 @@
             android:layout_below="@id/card_text"
             android:layout_marginRight="@dimen/default_padding"
             android:tint="@color/button_grey"
-            app:srcCompat="@drawable/ic_share_black_24dp1"/>
+            app:srcCompat="@drawable/ic_share_black_24dp"/>
 
         <ImageButton
             android:id="@+id/favorite_button"
@@ -70,7 +70,7 @@
             android:layout_marginRight="@dimen/default_padding"
             android:layout_toLeftOf="@id/share_button"
             android:tint="@color/button_grey"
-            app:srcCompat="@drawable/ic_favorite_black_24dp1"
+            app:srcCompat="@drawable/ic_favorite_black_24dp"
             />
 
     </RelativeLayout>

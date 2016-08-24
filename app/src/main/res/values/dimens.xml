@@ -19,4 +19,6 @@
     <dimen name="article_subheading">16sp</dimen>
     <dimen name="list_body">14sp</dimen>
 
+    <dimen name="nav_header_height">222dp</dimen>
+
 </resources>
