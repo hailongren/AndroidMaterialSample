@@ -21,4 +21,6 @@
 
     <dimen name="nav_header_height">222dp</dimen>
 
+    <dimen name="app_bar_height">208dp</dimen>
+
 </resources>
