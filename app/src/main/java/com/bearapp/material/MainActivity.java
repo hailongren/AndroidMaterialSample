@@ -3,126 +3,82 @@ package com.bearapp.material;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TabLayout;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
 
+    public static final String HOME_FRAGMENT_TAG = "HOME_FRAGMENT";
+    public static final String FAVORITE_FRAGMENT_TAG = "FAVORITE_FRAGMENT";
+    public static final String BOOKMARK_FRAGMENT_TAG = "BOOKMARK_FRAGMENT";
+
+    private static final String EXTRA_CURRENT_FRAGMENT = "EXTRA_CURRENT_FRAGMENT";
+
+    private String CURRENT_FRAGMENT = HOME_FRAGMENT_TAG;
+
+    private static final String TAG = "MainActivity";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // Adding toolbar to main screen
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        // Setting Viewpager for each Tabs
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        setupViewPager(viewPager);
-
-        // Setting Tabs work with Viewpager
-        TabLayout tabs = (TabLayout) findViewById(R.id.tabs);
-        tabs.setupWithViewPager(viewPager);
+        Log.d(TAG, "onCreate>>>>>>" + CURRENT_FRAGMENT);
 
         // Navigation drawer
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
 
-        // Adding menu icon to toolbar
-        ActionBar supportActionBar = getSupportActionBar();
-        if (supportActionBar != null) {
-            VectorDrawableCompat indicator = VectorDrawableCompat.create(getResources(), R.drawable.ic_menu_black_24dp, getTheme());
-            indicator.setTint(ResourcesCompat.getColor(getResources(), R.color.white, getTheme()));
-            supportActionBar.setHomeAsUpIndicator(indicator);
-            supportActionBar.setDisplayHomeAsUpEnabled(true);
-        }
 
         // Set behavior of Navigation drawer
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                item.setChecked(true);
-                // TODO: handle navigation
+                Log.d(TAG, "item: " + item.getTitle());
+                String tag = null;
+                switch (item.getItemId()) {
+                    case R.id.nav_home_fragment:
+                        tag = HOME_FRAGMENT_TAG;
+                        break;
+                    case R.id.nav_favorite_fragment:
+                        tag = FAVORITE_FRAGMENT_TAG;
+                        break;
+                    default:
+
+
+                }
+                if (tag != null && !tag.equals(CURRENT_FRAGMENT)) {
+                    showFragment(tag);
+                    item.setChecked(true);
+                }
                 mDrawerLayout.closeDrawers();
                 return true;
             }
         });
 
-        // Adding Floating Action Button to bottom right of main view.
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Hello Snackbar!", Snackbar.LENGTH_LONG).show();
-            }
-        });
+        if (savedInstanceState == null) {
+            Log.d(TAG, "savedInstanceState == null>>>");
+            showFragment(HOME_FRAGMENT_TAG);
+            navigationView.setCheckedItem(R.id.nav_home_fragment);
+        } else {
+            Log.d(TAG, "savedInstanceState != null>>>");
+            CURRENT_FRAGMENT = savedInstanceState.getString(EXTRA_CURRENT_FRAGMENT);
+        }
 
     }
 
-    /**
-     * Add fragments to viewpager
-     *
-     * @param viewPager
-     */
-    private void setupViewPager(ViewPager viewPager) {
-        Adapter adapter = new Adapter(getSupportFragmentManager());
-        adapter.addFragment(new ListContentFragment(), "List");
-        adapter.addFragment(new TileContentFragment(), "Tile");
-        adapter.addFragment(new CardContentFragment(), "Card");
-        viewPager.setAdapter(adapter);
-    }
-
-    static class Adapter extends FragmentPagerAdapter {
-
-        private List<Fragment> mFragmentList = new ArrayList<>();
-        private List<String> mFragmentTitleList = new ArrayList<>();
-
-
-        public Adapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        public void addFragment(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return mFragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mFragmentList.size();
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -149,5 +105,89 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+    }
+
+
+    public void setupToolBar(String title) {
+        // Adding menu icon to toolbar
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+            VectorDrawableCompat indicator = VectorDrawableCompat.create(getResources(), R.drawable.ic_menu_black_24dp, getTheme());
+            indicator.setTint(ResourcesCompat.getColor(getResources(), R.color.white, getTheme()));
+            supportActionBar.setHomeAsUpIndicator(indicator);
+            supportActionBar.setDisplayHomeAsUpEnabled(true);
+            if (title != null) {
+                supportActionBar.setTitle(title);
+            }
+        }
+    }
+
+
+    private void showFragment(String tag) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment current = fragmentManager.findFragmentByTag(CURRENT_FRAGMENT);
+        if (current != null) {
+            fragmentManager.beginTransaction().hide(current).commit();
+        }
+        Fragment fragment = fragmentManager.findFragmentByTag(tag);
+        if (fragment != null) {
+            fragmentManager.beginTransaction().show(fragment).commit();
+        } else {
+            fragment = newFragment(tag);
+            if (fragment != null) {
+                fragmentManager.beginTransaction().add(R.id.main_content, fragment, tag).commit();
+            }
+        }
+        CURRENT_FRAGMENT = tag;
+    }
+
+    private Fragment newFragment(String tag) {
+        if (HOME_FRAGMENT_TAG.equals(tag)) {
+            return new HomeFragment();
+        } else if (FAVORITE_FRAGMENT_TAG.equals(tag)) {
+            return new FavoriteFragment();
+        }
+        return null;
+    }
+
+    public String CURRENT_FRAGMENT() {
+        return CURRENT_FRAGMENT;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(TAG, "onSaveInstanceState>>>");
+        outState.putString(EXTRA_CURRENT_FRAGMENT, CURRENT_FRAGMENT);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy>>>>>");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart>>>>");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop>>>>>>");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume>>>>>>");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause>>>>>>");
     }
 }
